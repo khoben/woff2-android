@@ -13,3 +13,4 @@ __pycache__
 
 /scripts/sources
 /libwoff2dec/src/main/cpp/thirdparty
+/scripts/build_ndk.properties
