@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">woff2typeface</string>
+    <string name="load_woff2">Load .woff2</string>
+    <string name="pangram">Waltz, bad nymph, for quick jigs vex</string>
 </resources>

@@ -19,13 +19,15 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
         super.onCreate(savedInstanceState)
         val editText = findViewById<EditText>(R.id.text_edit)
         // using extension
-        editText.woff2Typeface(this, assets, "test.woff2")
-        editText.woff2Typeface(this, "path/test.woff2")
-        editText.woff2Typeface(this, File("path/test.woff2"))
+        editText.woff2Typeface(assets, "test.woff2")
+        editText.woff2Typeface("path/test.woff2")
+        editText.woff2Typeface(File("path/test.woff2"))
+        editText.woff2Typeface(ByteArray(...))
 
-        editText.setTypeface(Woff2Typeface.createFromFile(this, "path/test.woff2"))
-        editText.setTypeface(Woff2Typeface.createFromFile(this, File("path/test.woff2")))
-        editText.setTypeface(Woff2Typeface.createFromAsset(this, assets, "test.woff2"))
+        editText.setTypeface(Woff2Typeface.get().createFromFile("path/test.woff2"))
+        editText.setTypeface(Woff2Typeface.get().createFromFile(File("path/test.woff2")))
+        editText.setTypeface(Woff2Typeface.get().createFromAsset(assets, "test.woff2"))
+        editText.setTypeface(Woff2Typeface.get().createFromBytes(ByteArray(...)))
     }
 }
 ```

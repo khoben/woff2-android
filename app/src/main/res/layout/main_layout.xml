@@ -9,11 +9,13 @@
         android:id="@+id/text_edit"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:text="@tools:sample/lorem/random" />
+        android:gravity="center"
+        android:text="@string/pangram" />
 
     <Button
         android:id="@+id/load_typeface"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/load_woff2" />
 
 </LinearLayout>

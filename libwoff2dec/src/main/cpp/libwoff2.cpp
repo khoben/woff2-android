@@ -21,7 +21,7 @@ Java_com_github_khoben_libwoff2dec_Woff2Decode_decodeWOFF2(JNIEnv *env, jobject 
 
     std::ifstream ifs(in_filename.c_str(), std::ios::binary);
     std::string input = std::string(std::istreambuf_iterator<char>(ifs.rdbuf()),
-                          std::istreambuf_iterator<char>());
+                                    std::istreambuf_iterator<char>());
     const auto *raw_input = reinterpret_cast<const uint8_t *>(input.data());
 
     std::string output(

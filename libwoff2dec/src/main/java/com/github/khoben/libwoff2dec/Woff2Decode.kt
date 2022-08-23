@@ -19,7 +19,7 @@ object Woff2Decode {
      * Decompress woff2 font
      *
      * @param inBytes source woff2 font bytes
-     * @return Returns tff font bytes
+     * @return Returns tff font bytes or null if there is a decompression error
      */
-    external fun decodeWOFF2Byte(inBytes: ByteArray): ByteArray
+    external fun decodeWOFF2Byte(inBytes: ByteArray): ByteArray?
 }
