@@ -3,13 +3,13 @@ package com.github.khoben.libwoff2dec
 import org.junit.Assert
 import org.junit.Test
 
-class Woff2DecodeNotFoundTest : BaseTest() {
+class Woff2DecoderNotFoundTest : BaseTest() {
 
     @Test
     fun decodeWOFF2() {
         val outputFontFile = getTempFile()
         val result =
-            Woff2Decode.decodeWOFF2("failed", outputFontFile.absolutePath)
+            Woff2Decoder.decodeFile("failed", outputFontFile.absolutePath)
 
         Assert.assertFalse(result)
 
@@ -18,7 +18,7 @@ class Woff2DecodeNotFoundTest : BaseTest() {
 
     @Test
     fun decodeWOFF2Byte() {
-        val outputFontBytes = Woff2Decode.decodeWOFF2Byte(byteArrayOf())
+        val outputFontBytes = Woff2Decoder.decodeBytes(byteArrayOf())
 
         Assert.assertNull(outputFontBytes)
     }

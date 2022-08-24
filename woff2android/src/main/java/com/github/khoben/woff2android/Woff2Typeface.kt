@@ -3,7 +3,7 @@ package com.github.khoben.woff2android
 import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.Typeface
-import com.github.khoben.libwoff2dec.Woff2Decode
+import com.github.khoben.libwoff2dec.Woff2Decoder
 import com.github.khoben.woff2android.cache.Cache
 import com.github.khoben.woff2android.cache.DataHash
 import com.github.khoben.woff2android.cache.TempFile
@@ -34,7 +34,7 @@ class Woff2Typeface(
     fun createFromBytes(sourceBytes: ByteArray): Typeface {
         return try {
             val typefaceFile = cache.get(sourceBytes) ?: tempFile.create().let { tmpFile ->
-                Woff2Decode.decodeWOFF2Byte(sourceBytes)?.let { decompressedBytes ->
+                Woff2Decoder.decodeBytes(sourceBytes)?.let { decompressedBytes ->
                     tmpFile.outputStream().use { output ->
                         output.write(decompressedBytes)
                     }

@@ -9,9 +9,9 @@
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_com_github_khoben_libwoff2dec_Woff2Decode_decodeWOFF2(JNIEnv *env, jobject thiz,
-                                                           jstring input_file_name,
-                                                           jstring output_file_name) {
+Java_com_github_khoben_libwoff2dec_Woff2Decoder_decodeFile(JNIEnv *env, jobject thiz,
+                                                                                               jstring input_file_name,
+                                                                                               jstring output_file_name) {
 
     const char *in_file = env->GetStringUTFChars(input_file_name, nullptr);
     const char *out_file = env->GetStringUTFChars(output_file_name, nullptr);
@@ -44,8 +44,8 @@ Java_com_github_khoben_libwoff2dec_Woff2Decode_decodeWOFF2(JNIEnv *env, jobject 
 
 extern "C"
 JNIEXPORT jbyteArray JNICALL
-Java_com_github_khoben_libwoff2dec_Woff2Decode_decodeWOFF2Byte(JNIEnv *env, jobject thiz,
-                                                               jbyteArray input_bytes) {
+Java_com_github_khoben_libwoff2dec_Woff2Decoder_decodeBytes(JNIEnv *env, jobject thiz,
+                                                            jbyteArray input_bytes) {
 
     const auto *input_data = (uint8_t *) (env->GetByteArrayElements(input_bytes, nullptr));
     jsize input_data_len = env->GetArrayLength(input_bytes);

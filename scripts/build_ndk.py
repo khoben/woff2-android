@@ -1,5 +1,5 @@
 """
-Build and move to cpp folder libraries:
+Build and move to cpp folder:
     - brotli
     - woff2
 """
@@ -80,6 +80,7 @@ def build_woff2() -> None:
         WOFF2_BUILD_PATH = os.path.join(WOFF2_SOURCE_DIR, 'out', ABI)
 
         run(f'cmake -S {WOFF2_SOURCE_DIR} -B {WOFF2_BUILD_PATH}' \
+            f' -DBUILD_SHARED_LIBS=OFF'
             f' -DCMAKE_INSTALL_PREFIX={WOFF2_PREFIX_PATH} -DCMAKE_BUILD_TYPE=RELEASE'
             f' -DBROTLIDEC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIDEC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlidec.so' \
             f' -DBROTLIENC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIENC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlienc.so' \
@@ -95,14 +96,19 @@ def build_woff2() -> None:
 
 def copy_libs_to_target() -> None:
     rm(TARGET_DIR)
-    cp_tree(ROOT_INSTALL_DIR, TARGET_DIR, r'*.h', 'libwoff2common.so', 'libwoff2dec.so', 'libbrotlicommon.so', 'libbrotlidec.so')
+    cp_tree(
+        ROOT_INSTALL_DIR, TARGET_DIR,
+        r'*.h', 
+        'libbrotlicommon-static.a', 'libbrotlidec-static.a',
+        'libwoff2common.a', 'libwoff2dec.a'
+    )
 
     print('Libs copied to target')
 
 
 if __name__ == '__main__':
     print("""
-    Build and move to cpp folder libraries:
+    Build and move to cpp folder:
         - brotli
         - woff2
     """)

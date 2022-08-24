@@ -4,14 +4,14 @@ import android.graphics.Typeface
 import org.junit.Assert
 import org.junit.Test
 
-class Woff2DecodeTest : BaseTest() {
+class Woff2DecoderTest : BaseTest() {
 
     @Test
     fun decodeWOFF2() {
         val woff2FontFile = getFileFromAssets("lobster.woff2")
         val outputFontFile = getTempFile()
         val result =
-            Woff2Decode.decodeWOFF2(woff2FontFile.absolutePath, outputFontFile.absolutePath)
+            Woff2Decoder.decodeFile(woff2FontFile.absolutePath, outputFontFile.absolutePath)
 
         Assert.assertTrue(result)
 
@@ -26,7 +26,7 @@ class Woff2DecodeTest : BaseTest() {
     @Test
     fun decodeWOFF2Byte() {
         val woff2FontFile = getFileFromAssets("lobster.woff2")
-        val outputFontBytes = Woff2Decode.decodeWOFF2Byte(woff2FontFile.readBytes())
+        val outputFontBytes = Woff2Decoder.decodeBytes(woff2FontFile.readBytes())
 
         Assert.assertNotNull(outputFontBytes)
 

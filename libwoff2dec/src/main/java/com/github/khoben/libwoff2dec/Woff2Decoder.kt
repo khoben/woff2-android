@@ -1,9 +1,12 @@
 package com.github.khoben.libwoff2dec
 
-object Woff2Decode {
+/**
+ * Native woff2 decoder
+ */
+object Woff2Decoder {
 
     init {
-        System.loadLibrary("libwoff2dec")
+        System.loadLibrary("woff2decoder")
     }
 
     /**
@@ -13,7 +16,7 @@ object Woff2Decode {
      * @param outPath output decompressed font path
      * @return Returns true is success
      */
-    external fun decodeWOFF2(inPath: String, outPath: String): Boolean
+    external fun decodeFile(inPath: String, outPath: String): Boolean
 
     /**
      * Decompress woff2 font
@@ -21,5 +24,5 @@ object Woff2Decode {
      * @param inBytes source woff2 font bytes
      * @return Returns tff font bytes or null if there is a decompression error
      */
-    external fun decodeWOFF2Byte(inBytes: ByteArray): ByteArray?
+    external fun decodeBytes(inBytes: ByteArray): ByteArray?
 }

@@ -5,42 +5,41 @@
 
 cmake_minimum_required(VERSION 3.18.1)
 
-project("libwoff2dec")
+project("woff2decoder")
 
 add_library(
         brotlicommon
-        SHARED
+        STATIC
         IMPORTED)
 set_target_properties(
         brotlicommon PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/brotli/${ANDROID_ABI}/lib/libbrotlicommon.so)
+        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/brotli/${ANDROID_ABI}/lib/libbrotlicommon-static.a)
 
 add_library(
         brotlidec
-        SHARED
+        STATIC
         IMPORTED)
 set_target_properties(
         brotlidec PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/brotli/${ANDROID_ABI}/lib/libbrotlidec.so)
-
+        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/brotli/${ANDROID_ABI}/lib/libbrotlidec-static.a)
 
 add_library(woff2common
-        SHARED
+        STATIC
         IMPORTED)
 set_target_properties(woff2common PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/woff2/${ANDROID_ABI}/lib/libwoff2common.so
+        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/woff2/${ANDROID_ABI}/lib/libwoff2common.a
         INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/thirdparty/woff2/${ANDROID_ABI}/include)
 
 add_library(woff2dec
-        SHARED
+        STATIC
         IMPORTED)
 set_target_properties(woff2dec PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/woff2/${ANDROID_ABI}/lib/libwoff2dec.so
+        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/woff2/${ANDROID_ABI}/lib/libwoff2dec.a
         INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/thirdparty/woff2/${ANDROID_ABI}/include)
 
 add_library(
-        libwoff2dec
+        woff2decoder
         SHARED
-        libwoff2.cpp)
+        woff2decoder.cpp)
 find_library(log-lib log)
-target_link_libraries(libwoff2dec brotlicommon brotlidec woff2common woff2dec ${log-lib})
+target_link_libraries(woff2decoder woff2dec woff2common brotlidec brotlicommon ${log-lib})
