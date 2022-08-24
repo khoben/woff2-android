@@ -1,4 +1,6 @@
 # WOFF2 Android
+![Maven Central](https://img.shields.io/maven-central/v/io.github.khoben.woff2-android/decoder)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 Android woff2 typeface decoder
 
