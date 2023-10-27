@@ -4,12 +4,18 @@ Build and move to cpp folder:
     - woff2
 """
 import os
+import shutil
 from sh import run, cp_tree, rm, mkdirs, cd, prepend_env
 
 CWD: str = os.path.dirname(os.path.realpath(__file__))
 
 with open(os.path.join(CWD, 'build_ndk.properties'), 'r') as f:
     env_vars: dict[str, str] = dict(
+        tuple(line.rstrip().split('='))
+        for line in f.readlines() if not line.startswith('#')
+    )
+with open(os.path.join(CWD, '../','local.properties'), 'r') as f:
+    env_local_vars: dict[str, str] = dict(
         tuple(line.rstrip().split('='))
         for line in f.readlines() if not line.startswith('#')
     )
@@ -21,7 +27,20 @@ TARGET_DIR: str = os.path.join(os.path.dirname(CWD), 'libwoff2dec', 'src', 'main
 WOFF2_REPO: str = env_vars['WOFF2_REPO']
 WOFF2_VERSION: str = env_vars['WOFF2_VERSION']
 
-ANDROID_SDK: str = env_vars['ANDROID_SDK']
+ANDROID_SDK: str = env_local_vars['sdk.dir']
+NDK_ROOT: str = env_vars['NDK_VERSION']
+CMAKE_ROOT: str = env_vars['CMAKE_VERSION']
+print(f'ANDROID_SDK: {ANDROID_SDK}')
+print(f'NDK_ROOT: {NDK_ROOT}')
+print(f'CMAKE_ROOT: {CMAKE_ROOT}')
+#下面检查NDK_ROOT是不是等于纯数字加小数点,而不是其他的,防止忘记修改原始值Android NDK Version (ex, 23.2.8568313)
+if not NDK_ROOT.replace('.','').isdigit():
+    raise Exception(f'bro! {os.path.join(CWD, "build_ndk.properties")} '\
+                    f'NDK_VERSION is not set, please check it again')
+if not CMAKE_ROOT.replace('.','').isdigit():
+    raise Exception(f'bro! {os.path.join(CWD, "build_ndk.properties")} '\
+                    f'CMAKE_ROOT is not set, please check it again')
+
 NDK_ROOT: str = os.path.join(ANDROID_SDK, 'ndk', env_vars['NDK_VERSION'])
 CMAKE_ROOT: str = os.path.join(ANDROID_SDK, 'cmake', env_vars['CMAKE_VERSION'], 'bin')
 ABI_LIST: list[str] = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
@@ -50,6 +69,18 @@ def fetch_woff2_sources() -> None:
 
     print('woff2 has been fetched')
 
+def replace_string_in_file(file_path, old_string, new_string):
+    # 备份原始文件
+    backup_file_path = file_path + ".back"
+    if not os.path.exists(backup_file_path):
+        shutil.copyfile(file_path, backup_file_path)
+
+    # 替换字符串
+    with open(file_path, 'r') as file:
+        file_content = file.read()
+    file_content = file_content.replace(old_string, new_string)
+    with open(file_path, 'w') as file:
+        file.write(file_content)
 
 def build_woff2() -> None:
     print('Building woff2...')
@@ -79,11 +110,30 @@ def build_woff2() -> None:
         WOFF2_PREFIX_PATH = os.path.join(ROOT_INSTALL_DIR, 'woff2', ABI)
         WOFF2_BUILD_PATH = os.path.join(WOFF2_SOURCE_DIR, 'out', ABI)
 
+        # 构造文件路径
+        cmake_lists_file_path = os.path.join(WOFF2_SOURCE_DIR, "CMakeLists.txt")
+
+        # 检查是否存在备份文件
+        backup_file_path = cmake_lists_file_path + ".back"
+        if os.path.exists(backup_file_path):
+            print(f"{backup_file_path} 已存在，不执行替换操作")
+        else:
+            old_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}")'
+            new_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
+            # 复制并替换文件内容
+            shutil.copyfile(cmake_lists_file_path, backup_file_path)
+            replace_string_in_file(cmake_lists_file_path, old_string, new_string)
+            old_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}")'
+            new_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
+            replace_string_in_file(cmake_lists_file_path, old_string, new_string)
+        print("文件替换完成")
+
         run(f'cmake -S {WOFF2_SOURCE_DIR} -B {WOFF2_BUILD_PATH}' \
-            f' -DBUILD_SHARED_LIBS=OFF'
-            f' -DCMAKE_INSTALL_PREFIX={WOFF2_PREFIX_PATH} -DCMAKE_BUILD_TYPE=RELEASE'
+            f' -DBUILD_SHARED_LIBS=OFF'\
+            f' -DCMAKE_INSTALL_PREFIX={WOFF2_PREFIX_PATH} -DCMAKE_BUILD_TYPE=RELEASE'\
             f' -DBROTLIDEC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIDEC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlidec.so' \
             f' -DBROTLIENC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIENC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlienc.so' \
+            f' -DBROTLICOMM_LIBRARIES={BROTLI_LIB_DIR}/libbrotlicommon.so' \
             f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake -DANDROID_ABI={ABI}' \
             f' -DANDROID_NATIVE_API_LEVEL={MIN_ANDROID_SDK} -G Ninja')
 
