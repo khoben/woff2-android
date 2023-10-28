@@ -5,11 +5,12 @@ Build and move to cpp folder:
 """
 import os
 from sh import run, cp_tree, rm, mkdirs, cd, prepend_env
+from typing import Dict, List
 
 CWD: str = os.path.dirname(os.path.realpath(__file__))
 
 with open(os.path.join(CWD, 'build_ndk.properties'), 'r') as f:
-    env_vars: dict[str, str] = dict(
+    env_vars: Dict[str, str] = dict(
         tuple(line.rstrip().split('='))
         for line in f.readlines() if not line.startswith('#')
     )
@@ -24,10 +25,20 @@ WOFF2_VERSION: str = env_vars['WOFF2_VERSION']
 ANDROID_SDK: str = env_vars['ANDROID_SDK']
 NDK_ROOT: str = os.path.join(ANDROID_SDK, 'ndk', env_vars['NDK_VERSION'])
 CMAKE_ROOT: str = os.path.join(ANDROID_SDK, 'cmake', env_vars['CMAKE_VERSION'], 'bin')
-ABI_LIST: list[str] = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+ABI_LIST: List[str] = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
 MIN_ANDROID_SDK: str = env_vars['MIN_ANDROID_SDK']
 
 CPU_COUNT: int = os.cpu_count()
+
+if not os.path.exists(NDK_ROOT):
+    raise ValueError(
+        "NDK_ROOT points to invalid path. "
+        "Сheck that all variables are set correctly in build_ndk.properties"
+    )
+
+print(f'ANDROID_SDK={ANDROID_SDK}')
+print(f'NDK_ROOT={NDK_ROOT}')
+print(f'CMAKE_ROOT={CMAKE_ROOT}')
 
 def init_env() -> None:
     print('Initialize environment...')
@@ -64,9 +75,9 @@ def build_woff2() -> None:
         BROTLI_PREFIX_PATH = os.path.join(ROOT_INSTALL_DIR, 'brotli', ABI)
         BROTLI_BUILD_PATH = os.path.join(BROTLI_SOURCE_DIR, 'out', ABI)
 
-        run(f'cmake -S {BROTLI_SOURCE_DIR} -B {BROTLI_BUILD_PATH}' \
-            f' -DCMAKE_INSTALL_PREFIX={BROTLI_PREFIX_PATH} -DCMAKE_BUILD_TYPE=Release' \
-            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake' \
+        run(f'cmake -S {BROTLI_SOURCE_DIR} -B {BROTLI_BUILD_PATH}'
+            f' -DCMAKE_INSTALL_PREFIX={BROTLI_PREFIX_PATH} -DCMAKE_BUILD_TYPE=Release'
+            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake'
             f' -DANDROID_ABI={ABI} -DANDROID_NATIVE_API_LEVEL={MIN_ANDROID_SDK} -G Ninja')
         
         run(f'cmake --build {BROTLI_BUILD_PATH} --config Release --target install -j {CPU_COUNT}')
@@ -79,12 +90,12 @@ def build_woff2() -> None:
         WOFF2_PREFIX_PATH = os.path.join(ROOT_INSTALL_DIR, 'woff2', ABI)
         WOFF2_BUILD_PATH = os.path.join(WOFF2_SOURCE_DIR, 'out', ABI)
 
-        run(f'cmake -S {WOFF2_SOURCE_DIR} -B {WOFF2_BUILD_PATH}' \
+        run(f'cmake -S {WOFF2_SOURCE_DIR} -B {WOFF2_BUILD_PATH}'
             f' -DBUILD_SHARED_LIBS=OFF'
             f' -DCMAKE_INSTALL_PREFIX={WOFF2_PREFIX_PATH} -DCMAKE_BUILD_TYPE=RELEASE'
-            f' -DBROTLIDEC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIDEC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlidec.so' \
-            f' -DBROTLIENC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIENC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlienc.so' \
-            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake -DANDROID_ABI={ABI}' \
+            f' -DBROTLIDEC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIDEC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlidec.so'
+            f' -DBROTLIENC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIENC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlienc.so'
+            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake -DANDROID_ABI={ABI}'
             f' -DANDROID_NATIVE_API_LEVEL={MIN_ANDROID_SDK} -G Ninja')
 
         run(f'cmake --build {WOFF2_BUILD_PATH} --config Release --target install -j {CPU_COUNT}')
