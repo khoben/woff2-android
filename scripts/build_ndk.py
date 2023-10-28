@@ -69,6 +69,20 @@ def fetch_woff2_sources() -> None:
 
     print('woff2 has been fetched')
 
+def patch_woff2_sources() -> None:
+    print(
+        "Patching woff2: FindBrotliDec.cmake, FindBrotliEnc.cmake "
+        "(see https://github.com/google/woff2/pull/112)"
+    )
+
+    SRC_PATCH_DIR = os.path.join(CWD, "patch", "cmake")
+    DST_PATCH_DIR = os.path.join(ROOT_SOURCES_DIR, "woff2", "cmake")
+
+    cp_tree(SRC_PATCH_DIR, DST_PATCH_DIR)
+
+    print("woff2 has been patched")
+
+
 def replace_string_in_file(file_path, old_string, new_string):
     # 备份原始文件
     backup_file_path = file_path + ".back"
@@ -130,7 +144,6 @@ def build_woff2() -> None:
         # print("文件替换完成")
 
         run(f'cmake -S {WOFF2_SOURCE_DIR} -B {WOFF2_BUILD_PATH}'
-            f' -DCMAKE_DISABLE_FIND_PACKAGE_PkgConfig=ON'
             f' -DBUILD_SHARED_LIBS=OFF'
             f' -DCMAKE_INSTALL_PREFIX={WOFF2_PREFIX_PATH} -DCMAKE_BUILD_TYPE=RELEASE'
             f' -DBROTLIDEC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIDEC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlidec.so'
@@ -166,6 +179,7 @@ if __name__ == '__main__':
     init_env()
     clear_all()
     fetch_woff2_sources()
+    patch_woff2_sources()
     build_woff2()
     copy_libs_to_target()
     print("Finished successfully")

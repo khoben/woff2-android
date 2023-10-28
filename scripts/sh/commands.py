@@ -35,7 +35,12 @@ def cp_tree(src: str, dst: str, *include_mask) -> None:
             return ignore
         return _ignore_patterns
 
-    shutil.copytree(src, dst, ignore=include_patterns(*include_mask) if include_mask else None)
+    shutil.copytree(
+        src,
+        dst,
+        ignore=include_patterns(*include_mask) if include_mask else None,
+        dirs_exist_ok=True
+    )
 
 def rm(path: str) -> None:
 
