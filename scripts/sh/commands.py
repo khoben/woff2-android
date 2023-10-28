@@ -30,12 +30,12 @@ def run(command: str) -> None:
         )
 
 
+def cd(path: str) -> None:
+    os.chdir(path)
+
+
 def mkdirs(path: str) -> None:
     os.makedirs(path, exist_ok=True)
-
-
-def cp(src: str, dst: str) -> None:
-    shutil.copyfile(src, dst)
 
 
 def cp_tree(src: str, dst: str, *include_mask) -> None:
@@ -54,10 +54,7 @@ def cp_tree(src: str, dst: str, *include_mask) -> None:
         return _ignore_patterns
 
     shutil.copytree(
-        src,
-        dst,
-        ignore=include_patterns(*include_mask) if include_mask else None,
-        dirs_exist_ok=True,
+        src, dst, ignore=include_patterns(*include_mask) if include_mask else None
     )
 
 
