@@ -4,6 +4,7 @@ Build and move to cpp folder:
     - woff2
 """
 import os
+import shutil
 from sh import run, cp_tree, rm, mkdirs, cd, prepend_env
 
 CWD: str = os.path.dirname(os.path.realpath(__file__))
@@ -72,6 +73,32 @@ def fetch_woff2_sources() -> None:
 
     print("woff2 has been fetched")
 
+def patch_woff2_sources() -> None:
+    print(
+        "Patching woff2: FindBrotliDec.cmake, FindBrotliEnc.cmake "
+        "(see https://github.com/google/woff2/pull/112)"
+    )
+
+    SRC_PATCH_DIR = os.path.join(CWD, "patch", "cmake")
+    DST_PATCH_DIR = os.path.join(ROOT_SOURCES_DIR, "woff2", "cmake")
+
+    cp_tree(SRC_PATCH_DIR, DST_PATCH_DIR)
+
+    print("woff2 has been patched")
+
+
+def replace_string_in_file(file_path, old_string, new_string):
+    # 备份原始文件
+    backup_file_path = file_path + ".back"
+    if not os.path.exists(backup_file_path):
+        shutil.copyfile(file_path, backup_file_path)
+
+    # 替换字符串
+    with open(file_path, 'r') as file:
+        file_content = file.read()
+    file_content = file_content.replace(old_string, new_string)
+    with open(file_path, 'w') as file:
+        file.write(file_content)
 
 def build_woff2() -> None:
     print("Building woff2...")
@@ -93,6 +120,12 @@ def build_woff2() -> None:
             f" -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake"
             f" -DANDROID_ABI={ABI} -DANDROID_NATIVE_API_LEVEL={MIN_ANDROID_SDK} -G Ninja"
         )
+
+        run(f'cmake -S {BROTLI_SOURCE_DIR} -B {BROTLI_BUILD_PATH}'
+            f' -DBUILD_SHARED_LIBS=OFF'
+            f' -DCMAKE_INSTALL_PREFIX={BROTLI_PREFIX_PATH} -DCMAKE_BUILD_TYPE=Release'
+            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake'
+            f' -DANDROID_ABI={ABI} -DANDROID_NATIVE_API_LEVEL={MIN_ANDROID_SDK} -G Ninja')
         
         run(f'cmake --build {BROTLI_BUILD_PATH} --config Release --target install -j {CPU_COUNT}')
 
@@ -103,6 +136,24 @@ def build_woff2() -> None:
 
         WOFF2_PREFIX_PATH = os.path.join(ROOT_INSTALL_DIR, "woff2", ABI)
         WOFF2_BUILD_PATH = os.path.join(WOFF2_SOURCE_DIR, "out", ABI)
+
+        # # 构造文件路径
+        # cmake_lists_file_path = os.path.join(WOFF2_SOURCE_DIR, "CMakeLists.txt")
+
+        # # 检查是否存在备份文件
+        # backup_file_path = cmake_lists_file_path + ".back"
+        # if os.path.exists(backup_file_path):
+        #     print(f"{backup_file_path} 已存在，不执行替换操作")
+        # else:
+        #     old_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}")'
+        #     new_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
+        #     # 复制并替换文件内容
+        #     shutil.copyfile(cmake_lists_file_path, backup_file_path)
+        #     replace_string_in_file(cmake_lists_file_path, old_string, new_string)
+        #     old_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}")'
+        #     new_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
+        #     replace_string_in_file(cmake_lists_file_path, old_string, new_string)
+        # print("文件替换完成")
 
         run(
             f"cmake -S {WOFF2_TOP_DIR} -B {WOFF2_BUILD_PATH}"
@@ -149,6 +200,7 @@ if __name__ == "__main__":
     init_env()
     clear_all()
     fetch_woff2_sources()
+    patch_woff2_sources()
     build_woff2()
     copy_libs_to_target()
     print("Finished successfully")
