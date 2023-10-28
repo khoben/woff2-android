@@ -5,11 +5,12 @@ Build and move to cpp folder:
 """
 import os
 from sh import run, cp_tree, rm, mkdirs, cd, prepend_env
+from typing import Dict, List
 
 CWD: str = os.path.dirname(os.path.realpath(__file__))
 
 with open(os.path.join(CWD, 'build_ndk.properties'), 'r') as f:
-    env_vars: dict[str, str] = dict(
+    env_vars: Dict[str, str] = dict(
         tuple(line.rstrip().split('='))
         for line in f.readlines() if not line.startswith('#')
     )
@@ -24,7 +25,7 @@ WOFF2_VERSION: str = env_vars['WOFF2_VERSION']
 ANDROID_SDK: str = env_vars['ANDROID_SDK']
 NDK_ROOT: str = os.path.join(ANDROID_SDK, 'ndk', env_vars['NDK_VERSION'])
 CMAKE_ROOT: str = os.path.join(ANDROID_SDK, 'cmake', env_vars['CMAKE_VERSION'], 'bin')
-ABI_LIST: list[str] = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+ABI_LIST: List[str] = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
 MIN_ANDROID_SDK: str = env_vars['MIN_ANDROID_SDK']
 
 CPU_COUNT: int = os.cpu_count()
