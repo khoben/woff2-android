@@ -29,6 +29,16 @@ MIN_ANDROID_SDK: str = env_vars['MIN_ANDROID_SDK']
 
 CPU_COUNT: int = os.cpu_count()
 
+if not os.path.exists(NDK_ROOT):
+    raise ValueError(
+        "NDK_ROOT points to invalid path. "
+        "Сheck that all variables are set correctly in build_ndk.properties"
+    )
+
+print(f'ANDROID_SDK={ANDROID_SDK}')
+print(f'NDK_ROOT={NDK_ROOT}')
+print(f'CMAKE_ROOT={CMAKE_ROOT}')
+
 def init_env() -> None:
     print('Initialize environment...')
     prepend_env('PATH', CMAKE_ROOT)
