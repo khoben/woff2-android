@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
     python ./scripts/build_ndk.py
     ```
 
+Make sure you have NDK version 23 and above.
+
 ## License
 
 ```
