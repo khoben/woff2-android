@@ -95,10 +95,9 @@ def build_woff2() -> None:
         BROTLI_PREFIX_PATH = os.path.join(ROOT_INSTALL_DIR, 'brotli', ABI)
         BROTLI_BUILD_PATH = os.path.join(BROTLI_SOURCE_DIR, 'out', ABI)
 
-        run(f'cmake -S {BROTLI_SOURCE_DIR} -B {BROTLI_BUILD_PATH}'
-            f' -DBUILD_SHARED_LIBS=OFF'
-            f' -DCMAKE_INSTALL_PREFIX={BROTLI_PREFIX_PATH} -DCMAKE_BUILD_TYPE=Release'
-            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake'
+        run(f'cmake -S {BROTLI_SOURCE_DIR} -B {BROTLI_BUILD_PATH}' \
+            f' -DCMAKE_INSTALL_PREFIX={BROTLI_PREFIX_PATH} -DCMAKE_BUILD_TYPE=Release' \
+            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake' \
             f' -DANDROID_ABI={ABI} -DANDROID_NATIVE_API_LEVEL={MIN_ANDROID_SDK} -G Ninja')
         
         run(f'cmake --build {BROTLI_BUILD_PATH} --config Release --target install -j {CPU_COUNT}')
@@ -111,31 +110,31 @@ def build_woff2() -> None:
         WOFF2_PREFIX_PATH = os.path.join(ROOT_INSTALL_DIR, 'woff2', ABI)
         WOFF2_BUILD_PATH = os.path.join(WOFF2_SOURCE_DIR, 'out', ABI)
 
-        # # 构造文件路径
-        # cmake_lists_file_path = os.path.join(WOFF2_SOURCE_DIR, "CMakeLists.txt")
+        # 构造文件路径
+        cmake_lists_file_path = os.path.join(WOFF2_SOURCE_DIR, "CMakeLists.txt")
 
-        # # 检查是否存在备份文件
-        # backup_file_path = cmake_lists_file_path + ".back"
-        # if os.path.exists(backup_file_path):
-        #     print(f"{backup_file_path} 已存在，不执行替换操作")
-        # else:
-        #     old_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}")'
-        #     new_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
-        #     # 复制并替换文件内容
-        #     shutil.copyfile(cmake_lists_file_path, backup_file_path)
-        #     replace_string_in_file(cmake_lists_file_path, old_string, new_string)
-        #     old_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}")'
-        #     new_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
-        #     replace_string_in_file(cmake_lists_file_path, old_string, new_string)
-        # print("文件替换完成")
+        # 检查是否存在备份文件
+        backup_file_path = cmake_lists_file_path + ".back"
+        if os.path.exists(backup_file_path):
+            print(f"{backup_file_path} 已存在，不执行替换操作")
+        else:
+            old_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}")'
+            new_string = 'target_link_libraries(woff2dec woff2common "${BROTLIDEC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
+            # 复制并替换文件内容
+            shutil.copyfile(cmake_lists_file_path, backup_file_path)
+            replace_string_in_file(cmake_lists_file_path, old_string, new_string)
+            old_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}")'
+            new_string = 'target_link_libraries(woff2enc woff2common "${BROTLIENC_LIBRARIES}" "${BROTLICOMM_LIBRARIES}")'
+            replace_string_in_file(cmake_lists_file_path, old_string, new_string)
+        print("文件替换完成")
 
-        run(f'cmake -S {WOFF2_SOURCE_DIR} -B {WOFF2_BUILD_PATH}'
-            f' -DCMAKE_DISABLE_FIND_PACKAGE_PkgConfig=ON'
-            f' -DBUILD_SHARED_LIBS=OFF'
-            f' -DCMAKE_INSTALL_PREFIX={WOFF2_PREFIX_PATH} -DCMAKE_BUILD_TYPE=RELEASE'
-            f' -DBROTLIDEC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIDEC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlidec.so'
-            f' -DBROTLIENC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIENC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlienc.so'
-            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake -DANDROID_ABI={ABI}'
+        run(f'cmake -S {WOFF2_SOURCE_DIR} -B {WOFF2_BUILD_PATH}' \
+            f' -DBUILD_SHARED_LIBS=OFF'\
+            f' -DCMAKE_INSTALL_PREFIX={WOFF2_PREFIX_PATH} -DCMAKE_BUILD_TYPE=RELEASE'\
+            f' -DBROTLIDEC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIDEC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlidec.so' \
+            f' -DBROTLIENC_INCLUDE_DIRS={BROTLI_INCLUDE_DIR} -DBROTLIENC_LIBRARIES={BROTLI_LIB_DIR}/libbrotlienc.so' \
+            f' -DBROTLICOMM_LIBRARIES={BROTLI_LIB_DIR}/libbrotlicommon.so' \
+            f' -DCMAKE_TOOLCHAIN_FILE={NDK_ROOT}/build/cmake/android.toolchain.cmake -DANDROID_ABI={ABI}' \
             f' -DANDROID_NATIVE_API_LEVEL={MIN_ANDROID_SDK} -G Ninja')
 
         run(f'cmake --build {WOFF2_BUILD_PATH} --config Release --target install -j {CPU_COUNT}')
