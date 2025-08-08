@@ -7,10 +7,10 @@ Android woff2 typeface decoder
 ## Installation
 ```gradle
 # Woff2 android typeface converter
-implementation 'io.github.khoben.woff2-android:typeface:0.0.1'
+implementation 'io.github.khoben.woff2-android:typeface:0.0.2'
 
 # Or single native woff2 decoder
-implementation 'io.github.khoben.woff2-android:decoder:0.0.1'
+implementation 'io.github.khoben.woff2-android:decoder:0.0.2'
 ```
 
 ## Sample usage
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(R.layout.main_layout) {
     python ./scripts/build_ndk.py
     ```
 
-Make sure you have NDK version 23 and above.
+Make sure you have NDK version 28 and above.
 
 ## License
 
